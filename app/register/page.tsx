@@ -6,6 +6,8 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -20,8 +22,24 @@ export default function Register() {
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
+    // 1. Validasi input
+    if (!name) {
+      setError("Nama lengkap wajib diisi.");
+      return;
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Masukkan alamat email yang valid.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter.");
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setError("Password dan konfirmasi password tidak sama!");
+      setError("Password dan konfirmasi password tidak sama.");
       return;
     }
 
@@ -38,21 +56,55 @@ export default function Register() {
         },
       });
 
+      // 2. Tangani error dari Supabase
       if (error) {
-        setError(error.message);
+        const message = error.message.toLowerCase();
+
+        if (
+          message.includes("rate limit") ||
+          message.includes("too many requests")
+        ) {
+          setError(
+            "Permintaan email terlalu sering. Silakan tunggu beberapa saat sebelum mencoba kembali.",
+          );
+        } else if (message.includes("invalid email")) {
+          setError("Format email tidak valid. Periksa kembali email kamu.");
+        } else if (message.includes("password")) {
+          setError(
+            "Password belum memenuhi persyaratan. Periksa kembali password kamu.",
+          );
+        } else if (
+          message.includes("already registered") ||
+          message.includes("already exists")
+        ) {
+          setError(
+            "Email mungkin sudah terdaftar. Coba login atau gunakan fitur lupa password.",
+          );
+        } else {
+          setError(
+            "Registrasi belum berhasil. Silakan coba kembali beberapa saat lagi.",
+          );
+        }
+
         return;
       }
 
-      if (data.user && data.session === null) {
+      // 3. Tangani hasil registrasi
+      if (data.user && !data.session) {
         setSuccess(
-          "Registrasi berhasil. Silakan periksa email untuk mengonfirmasi akun.",
+          "Permintaan registrasi berhasil. Silakan periksa email untuk mengonfirmasi akun.",
         );
-        return;
+      } else if (data.user && data.session) {
+        setSuccess("Registrasi berhasil. Akun kamu sudah siap digunakan.");
+      } else {
+        setError(
+          "Status registrasi belum dapat dipastikan. Silakan coba login atau periksa kembali nanti.",
+        );
       }
-
-      setSuccess("Registrasi berhasil. Akun berhasil dibuat.");
     } catch {
-      setError("Terjadi kesalahan. Silakan coba kembali.");
+      setError(
+        "Terjadi masalah koneksi. Periksa internet kamu, lalu coba kembali.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -156,16 +208,65 @@ export default function Register() {
                   Password
                 </label>
 
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Minimal 8 karakter"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-[#243767] focus:ring-2 focus:ring-[#243767]/20"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Minimal 8 karakter"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 outline-none transition focus:border-[#243767] focus:ring-2 focus:ring-[#243767]/20"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword
+                        ? "Sembunyikan password"
+                        : "Tampilkan password"
+                    }
+                    className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 hover:text-[#243767]"
+                  >
+                    {showPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M3 3l18 18" />
+                        <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                        <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a15.8 15.8 0 0 1-4 4.8" />
+                        <path d="M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a10.6 10.6 0 0 0 4-.8" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -176,27 +277,76 @@ export default function Register() {
                   Konfirmasi Password
                 </label>
 
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="Masukkan ulang password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-[#243767] focus:ring-2 focus:ring-[#243767]/20"
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Masukkan ulang password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 outline-none transition focus:border-[#243767] focus:ring-2 focus:ring-[#243767]/20"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={
+                      showConfirmPassword
+                        ? "Sembunyikan konfirmasi password"
+                        : "Tampilkan konfirmasi password"
+                    }
+                    className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 hover:text-[#243767]"
+                  >
+                    {showConfirmPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M3 3l18 18" />
+                        <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                        <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a15.8 15.8 0 0 1-4 4.8" />
+                        <path d="M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a10.6 10.6 0 0 0 4-.8" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-[#243767] px-4 py-3 font-semibold text-white transition hover:bg-[#1b294d] focus:outline-none focus:ring-2 focus:ring-[#243767]/40 focus:ring-offset-2"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#243767] px-4 py-3 font-semibold text-white transition hover:bg-[#1b294d] focus:outline-none focus:ring-2 focus:ring-[#243767]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isLoading ? (
                   <>
                     <svg
-                      className="h-5 w-5 animate-spin"
+                      className="h-5 w-5 shrink-0 animate-spin"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
