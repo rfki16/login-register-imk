@@ -1,0 +1,9 @@
+.gitignore
+app/globals.css
+app/layout.tsx
+app/page.tsx
+app/register/page.tsx
+app/test-supabase/page.tsx
+lib/supabase.ts
+package-lock.json
+package.json
