@@ -59,6 +59,78 @@ export default function Home() {
     }
   }
 
+  async function handleGoogleLogin() {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        setError("Login dengan Google belum berhasil. Silakan coba kembali.");
+        setIsLoading(false);
+      }
+    } catch {
+      setError(
+        "Terjadi masalah koneksi. Periksa internet kamu, lalu coba kembali.",
+      );
+      setIsLoading(false);
+    }
+  }
+
+  async function handleFacebookLogin() {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        setError("Login dengan Facebook belum berhasil. Silakan coba kembali.");
+        setIsLoading(false);
+      }
+    } catch {
+      setError(
+        "Terjadi masalah koneksi. Periksa internet kamu, lalu coba kembali.",
+      );
+      setIsLoading(false);
+    }
+  }
+
+  async function handleGithubLogin() {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        setError("Login dengan GitHub belum berhasil. Silakan coba kembali.");
+        setIsLoading(false);
+      }
+    } catch {
+      setError(
+        "Terjadi masalah koneksi. Periksa internet kamu, lalu coba kembali.",
+      );
+      setIsLoading(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#F3F5F9] md:flex md:items-center md:justify-center md:px-6 md:py-10">
       <div className="mx-auto flex w-full max-w-md flex-col px-4 pt-4 pb-4 md:mx-0 md:max-w-5xl md:flex-row md:px-0 md:py-0">
@@ -201,6 +273,85 @@ export default function Home() {
                 className="mt-5 w-full rounded-lg bg-[#243767] px-4 py-3 font-semibold text-white transition hover:bg-[#1b294d] focus:outline-none focus:ring-2 focus:ring-[#243767]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isLoading ? "Memproses..." : "Masuk"}
+              </button>
+
+              <div className="my-5 flex items-center gap-4">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-sm text-gray-500">atau</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#243767]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <svg
+                  className="h-5 w-5 shrink-0"
+                  viewBox="0 0 48 48"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="#4285F4"
+                    d="M43.6 24.5c0-1.4-.1-2.9-.4-4.3H24v8.1h11a9.4 9.4 0 0 1-4.1 6.2l6.6 5.1c3.9-3.6 6.1-8.9 6.1-15.1Z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M24 44c5.5 0 10.2-1.8 13.5-4.8l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4l-6.8 5.2A20.4 20.4 0 0 0 24 44Z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M12.6 27.7a12.3 12.3 0 0 1 0-7.4l-6.8-5.2a20.1 20.1 0 0 0 0 17.8l6.8-5.2Z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M24 11.9c3 0 5.7 1 7.8 3l5.8-5.8C34.1 5.9 29.4 4 24 4A20.4 20.4 0 0 0 5.8 15.1l6.8 5.2c1.6-4.8 6.1-8.4 11.4-8.4Z"
+                  />
+                </svg>
+
+                <span>Continue with Google</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleFacebookLogin}
+                disabled={isLoading}
+                className="mt-2 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#243767]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <svg
+                  className="h-5 w-5 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="#1877F2"
+                  aria-hidden="true"
+                >
+                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.973h-1.513c-1.49 0-1.956.93-1.956 1.884v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+                </svg>
+
+                <span>Continue with Facebook</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGithubLogin}
+                disabled={isLoading}
+                className="mt-2 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#243767]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <svg
+                  className="h-5 w-5 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.23c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.49.99.11-.77.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.53.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.62-2.8 5.64-5.48 5.94.43.37.82 1.1.82 2.22v3.3c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12C24 5.37 18.63 0 12 0Z"
+                  />
+                </svg>
+
+                <span>Continue with GitHub</span>
               </button>
             </form>
 
