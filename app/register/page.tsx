@@ -8,6 +8,13 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+  const isPasswordValid = passwordValue.length >= 8;
+  const [confirmPasswordValue, setConfirmPasswordValue] = useState("");
+  const isConfirmPasswordMatch =
+    passwordValue.length > 0 &&
+    confirmPasswordValue.length > 0 &&
+    passwordValue === confirmPasswordValue;
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -213,6 +220,8 @@ export default function Register() {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    value={passwordValue}
+                    onChange={(event) => setPasswordValue(event.target.value)}
                     placeholder="Minimal 8 karakter"
                     autoComplete="new-password"
                     minLength={8}
@@ -267,6 +276,35 @@ export default function Register() {
                     )}
                   </button>
                 </div>
+                <div className="mt-2 flex items-center gap-2">
+                  {isPasswordValid ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-green-600"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m5 12 4 4L19 6"
+                      />
+                    </svg>
+                  ) : (
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full border border-gray-400" />
+                  )}
+
+                  <span
+                    className={`text-sm transition-colors ${
+                      isPasswordValid ? "text-green-600" : "text-gray-500"
+                    }`}
+                  >
+                    Minimal 8 karakter
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -282,6 +320,10 @@ export default function Register() {
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPasswordValue}
+                    onChange={(event) =>
+                      setConfirmPasswordValue(event.target.value)
+                    }
                     placeholder="Masukkan ulang password"
                     autoComplete="new-password"
                     minLength={8}
@@ -336,6 +378,45 @@ export default function Register() {
                     )}
                   </button>
                 </div>
+                {confirmPasswordValue.length > 0 && (
+                  <div className="mt-2 flex items-center gap-2">
+                    {isConfirmPasswordMatch ? (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 text-green-600"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m5 12 4 4L19 6"
+                          />
+                        </svg>
+                        <span className="text-sm text-green-600">
+                          Password cocok
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span
+                          className="flex h-4 w-4 items-center justify-center
+          rounded-full text-sm font-bold text-red-600"
+                          aria-hidden="true"
+                        >
+                          ×
+                        </span>
+                        <span className="text-sm text-red-600">
+                          Password tidak cocok
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               <button
